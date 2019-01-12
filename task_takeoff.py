@@ -33,23 +33,25 @@ class Task():
         # reward = 1.-.3*(abs(self.sim.pose[:3] - self.target_pos)).sum()
         
         # proximity to target
-        proximity = abs(self.sim.pose[:3] - self.target_pos).sum()
+        proximity = abs(self.sim.pose[2] - self.target_pos[2])
         
         # define new reward function for takeoff
-        reward = 1. - .3 * proximity
+        reward = np.tanh(1 - .01 * proximity)
         
         # check if task has been completed
-        if done and proximity < 10:
-           # crashed
-           reward -= 10000
+        if done and proximity > 3:
+            # crashed
+            reward -= 100
+            if self.sim.time < 2:
+                reward -= 100
         
         # if agent is near target
         if proximity < 40:
-            reward += 50
-        
-        if proximity < 20:
-            reward += 100000
-            done = True
+            reward += 5
+            
+            if proximity < 2:
+                reward += 1000
+                done = True
         
         return reward, done
 
